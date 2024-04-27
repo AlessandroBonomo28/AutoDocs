@@ -92,6 +92,8 @@ while True:
         output = generate_documentation(text, generation_prompt)
         filename = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         # log in outputs/
+        if not os.path.exists("outputs"):
+            os.makedirs("outputs")
         output_filename = f"outputs/{filename}.md"
         with open(output_filename, "w",encoding="utf-8") as f:
             f.write(output)
