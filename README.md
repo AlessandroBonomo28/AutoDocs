@@ -4,11 +4,11 @@
 ```
 python -venv env
 ```
-- linux
+- activate env linux
 ```
 source env/bin/activate
 ```
-- windows
+- activate env windows
 ```
 source ./env/Scripts/activate
 ```
