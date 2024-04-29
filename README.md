@@ -10,14 +10,20 @@ source env/bin/activate
 ```
 - activate env windows
 ```
-source ./env/Scripts/activate
+.\env\Scripts\activate
 ```
 ```
 pip install -e .
 ```
+```
+cd src
+```
+```
+python obsidian_autodoc.py
+```
 ## .env
 ```
-VAULT_DIRECTORY=C:\...
-OPENAI_API_KEY=your-key
+VAULT_DIRECTORY=C:\path-to-your-obsidian-vault
+OPENAI_API_KEY=your-apikey
 ```
 
