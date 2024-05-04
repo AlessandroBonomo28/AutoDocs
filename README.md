@@ -26,17 +26,23 @@ cd src
 ```
 python autodocs.py
 ```
-## .env
+### .env
 ```
-VAULT_DIRECTORY=C:\path-to-your-obsidian-vault
 OPENAI_API_KEY=your-apikey
-LANGUAGE=english
 ```
-- **VAULT_DIRECTORY**: path of your obsidian vault
+### File .config
+```
+{
+    "vault_directory": "C:\\Users\\Alessandro\\OneDrive\\Documenti\\Obsidian Vault",
+    "language":"italiano"
+}
+```
+ 
+- **vault_directory**: path of your obsidian vault
 - **OPENAI_API_KEY**: your valid openai api key for generating documentation
-- **LANGUAGE**: output documentation language. It can be for example: italian, english, spanish...
+- **language**: output documentation language. It can be for example: italian, english, spanish...
 
-#### build exe
+## build an exe with pyinstaller
 - install requirements.txt
 ```
 pip install -r requirements.txt
@@ -48,4 +54,5 @@ cd src
 python build.py
 ```
 - checkout dist folder
-- if there are any problems try to copy manually .env file into dist/Autodocs folder.
+- copy .env file into dist
+- run the exe

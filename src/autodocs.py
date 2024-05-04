@@ -1,13 +1,38 @@
-import obsidiantools.api as otools
+
 from dotenv import load_dotenv
 from wasabi import msg
 from datetime import datetime
-import os
+import os,json
 import openai
 
 load_dotenv()
 
-language = os.getenv("LANGUAGE", "ITALIANO")
+
+DEFAULT_CONFIG = {
+    "language": "ITALIANO",
+    "vault_directory": ""
+}
+
+
+
+def save_config(config):
+    with open("config.json", "w") as f:
+        json.dump(config, f)
+
+    
+def load_config():
+    if not os.path.exists("config.json"):
+        save_config(DEFAULT_CONFIG)
+    with open("config.json", "r") as f:
+        return json.load(f)
+
+
+config = load_config()
+
+LANGUAGE = config["language"]
+VAULT_DIRECTORY = config["vault_directory"]
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 
 
 GPT3_MODEL = "gpt-3.5-turbo"
@@ -22,11 +47,11 @@ def get_completion_from_messages(messages, model=GPT4_MODEL, temperature=0.15):
     return response.choices[0].message["content"]
 
 def generate_documentation(obsidian_text, sys_prompt, model=GPT4_MODEL, temperature=0.15):
-    global language
+    global LANGUAGE
     prompt = f"""
     Ecco gli appunti presi durante lo sviluppo software:
     {obsidian_text}
-    Genera documentazione e git commit dai seguenti in LINGUAGGIO {language.upper()}:
+    Genera documentazione e git commit dai seguenti in LINGUAGGIO {LANGUAGE.upper()}:
     """
     messages = [
         {"role": "system", "content": sys_prompt},
@@ -34,8 +59,7 @@ def generate_documentation(obsidian_text, sys_prompt, model=GPT4_MODEL, temperat
     ]
     return get_completion_from_messages(messages, model, temperature)
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-VAULT_DIRECTORY = os.getenv("VAULT_DIRECTORY")
+
 
 def check_env():
     if OPENAI_API_KEY is None:
@@ -43,11 +67,6 @@ def check_env():
         return False
     else:
         msg.good("OPENAI_API_KEY env set.")
-    if VAULT_DIRECTORY is None:
-        msg.fail("VAULT_DIRECTORY not found. Make sure to set it in the file .env")
-        return False
-    else:
-        msg.good("VAULT_DIRECTORY env set.")
     return True
 
 TITLE = """
@@ -60,18 +79,20 @@ TITLE = """
                                                
                                                
 """
-vault = otools.Vault(VAULT_DIRECTORY).connect().gather()
-print(TITLE)
-msg.info(f"Output Language set to {language.upper()}")
-# check if exists directory .obsidian VAULT_DIRECTORY/.obsidian
 
-if not os.path.exists(f"{VAULT_DIRECTORY}/.obsidian"):
-    msg.fail(f"Vault not found in {VAULT_DIRECTORY}. Please check your vault path in the file .env")
-    exit()
+print(TITLE)
+msg.info(f"Output Language set to {LANGUAGE.upper()}")
+# check if exists directory VAULT_DIRECTORY/.obsidian
+
+if os.path.exists(VAULT_DIRECTORY):
+    msg.good(f"Directory '{VAULT_DIRECTORY}' found, please edit the config.json file")
 else:
-    msg.good(f"Vault obsidian set.")
+    msg.fail(f"Directory '{VAULT_DIRECTORY}' not found")
+    input("Press Enter to exit...")
+    exit()
 
 if not check_env():
+    input("Press Enter to exit...")
     exit()
 
 openai.api_key = OPENAI_API_KEY
@@ -79,6 +100,7 @@ openai.api_key = OPENAI_API_KEY
 # leggi generation_prompt.txt
 if not os.path.exists("generation_prompt.txt"):
     msg.fail("File generation_prompt.txt not found.")
+    input("Press Enter to exit...")
     exit()
 with open("generation_prompt.txt", "r") as f:
     generation_prompt = f.read()
@@ -89,8 +111,8 @@ while True:
     print("Insert the name of the obsidian note that you want to process:")
     obsidian_file = input()
     try:
-        src_txt = vault.get_source_text(obsidian_file)
-        text = vault.get_readable_text(obsidian_file)
+        with open(f"{VAULT_DIRECTORY}/{obsidian_file}.md", "r",encoding="utf-8") as f:
+            text = f.read()
         msg.good("Note found!")
         msg.info("Generating documentation and git commit...")
     except:
