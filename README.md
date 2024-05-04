@@ -22,7 +22,7 @@ source env/bin/activate
 .\env\Scripts\activate
 ```
 ```
-pip install -e .
+pip install -r requirements.txt
 ```
 ```
 cd src
@@ -47,10 +47,6 @@ OPENAI_API_KEY=your-apikey
 - **language**: output documentation language. It can be for example: italian, english, spanish...
 
 ## build an exe with pyinstaller
-- install requirements.txt
-```
-pip install -r requirements.txt
-```
 ```
 cd src
 ```
